@@ -1,2 +1,5 @@
 # Miscellaneous
 **/.DS_Store
+
+# Docker
+**/docker-data/**

@@ -1,0 +1,44 @@
+version: "3"
+services:
+  storage:
+    image: minio/minio:RELEASE.2024-02-17T01-15-57Z.fips
+    container_name: storage
+    volumes:
+      - ./docker-data/storage:/data
+    ports:
+      - 9000:9000
+    environment:
+      MINIO_ROOT_USER: abr-user
+      MINIO_ROOT_PASSWORD: abr-pa$$w0rd
+    command: server /data
+  db:
+    image: postgres:16.2
+    container_name: db
+    volumes:
+      - ./docker-data/db:/var/lib/postgresql/data
+    ports:
+      - 6111:5432
+    environment:
+      POSTGRES_DB: abr-local
+      POSTGRES_USER: abr-user
+      POSTGRES_PASSWORD: abr-password
+  auth:
+    image: registry.supertokens.io/supertokens/supertokens-postgresql:7.0
+    container_name: auth
+    ports:
+      - 3567:3567
+    environment:
+      POSTGRESQL_CONNECTION_URI: "postgresql://abr-user:abr-password@auth-db:5432/abr-auth-local"
+    depends_on:
+      - auth-db
+  auth-db:
+    image: postgres:16.2
+    container_name: auth-db
+    volumes:
+      - ./docker-data/auth-db:/var/lib/postgresql/data
+    ports:
+      - 7111:5432
+    environment:
+      POSTGRES_DB: abr-auth-local
+      POSTGRES_USER: abr-user
+      POSTGRES_PASSWORD: abr-password
